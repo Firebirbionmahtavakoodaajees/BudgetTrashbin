@@ -192,12 +192,12 @@
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-sizing: border-box;
         overflow: hidden;
-        flex-shrink: 0; /* Add this line */
+        flex-shrink: 0;
     }
 
     /* Spreadsheet Styles */
     .spreadsheet-container {
-        flex: 0 0 auto; /* Changed from flex: 1 to prevent stretching */
+        flex: 0 0 auto;
         border: 2px solid #9BCFD8;
         border-radius: 25px;
         background: #C2E5ED;
@@ -207,8 +207,8 @@
         padding: 24px;
         display: flex;
         flex-direction: column;
-        min-height: 300px; /* Minimum height */
-        max-height: 600px; /* Maximum height before scrolling */
+        min-height: 300px;
+        max-height: 600px;
         overflow: hidden;
     }
 
