@@ -31,6 +31,7 @@
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
+		"@smui/textfield": "^8.0.3",
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/kit": "^2.47.1",
 		"@sveltejs/package": "^2.5.4",
