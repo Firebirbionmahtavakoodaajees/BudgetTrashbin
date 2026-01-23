@@ -14,6 +14,12 @@
 	let monthlySpending = [];
 	let upcomingExpenses = [];
 
+	const now = new Date();
+	const monthIndex = now.getMonth() + 1;
+	const monthName = now.toLocaleString('default', { month: 'long' });
+
+	const nextGoal = 1;
+
 	// Functions for calculations
 	$: savingsData.net = savingsData.monthlyIn - savingsData.monthlyOut;
 	$: savingsData.savingsRate = savingsData.total > 0 ? Math.round((savingsData.net / savingsData.monthlyIn) * 100) : 0;
@@ -45,8 +51,7 @@
 			</div>
 			<div class="header-info">
 				<div class="info-item">
-					<span class="label">Updated</span>
-					<span class="value">Just now</span>
+					<span class="value">{monthName}</span>
 				</div>
 			</div>
 		</div>
@@ -106,61 +111,17 @@
 		</div>
 
 		<div class="stat-card rate">
-			<div class="stat-icon">📈</div>
+			<div class="stat-icon">💭</div>
 			<div class="stat-content">
-				<div class="stat-label">Savings Rate</div>
-				<div class="stat-value">{savingsData.savingsRate}%</div>
-				<div class="rate-status">
-					{#if savingsData.savingsRate >= 20}
-						<span class="good">Excellent</span>
-					{:else if savingsData.savingsRate >= 10}
-						<span class="ok">Good</span>
-					{:else}
-						<span class="low">Needs work</span>
-					{/if}
+				<div class="stat-label">Until {nextGoal}</div>
+				<div class="stat-value">{formatCurrency(savingsData.total)}</div>
+				<div class="stat-progress">
+					<div class="progress">
+						<div class="progress-fill" style="width: {savingsData.goalProgress}%"></div>
+					</div>
+					<div class="progress-text">{savingsData.goalProgress}% of goal</div>
 				</div>
 			</div>
-		</div>
-	</div>
-
-	<!-- 3. Goals Section -->
-	<div class="section">
-		<div class="section-header">
-			<h2>Goals & Dreams</h2>
-			<button class="section-action">+ Add</button>
-		</div>
-
-		<div class="goals-container">
-			{#if goals.length > 0}
-				<div class="goals-grid">
-					{#each goals as goal, i}
-						<div class="goal-card">
-							<div class="goal-header">
-								<div class="goal-icon">{i + 1}</div>
-								<div class="goal-title">
-									<h3>{goal.name}</h3>
-									<div class="goal-target">{formatCurrency(goal.target)}</div>
-								</div>
-							</div>
-							<div class="goal-progress">
-								<div class="progress">
-									<div class="progress-fill" style="width: {goal.progress}%"></div>
-								</div>
-								<div class="goal-stats">
-									<div class="goal-saved">{formatCurrency(goal.saved)}</div>
-									<div class="goal-left">{goal.daysLeft} days left</div>
-								</div>
-							</div>
-						</div>
-					{/each}
-				</div>
-			{:else}
-				<div class="empty-state">
-					<div class="empty-icon">🎯</div>
-					<p>No goals set yet</p>
-					<button class="btn-primary">Create First Goal</button>
-				</div>
-			{/if}
 		</div>
 	</div>
 
@@ -168,69 +129,10 @@
 	<div class="section">
 		<div class="section-header">
 			<h2>Spending Categories</h2>
-			<div class="section-sub">This month</div>
+			<div class="value">{monthName}</div>
 		</div>
 
 		<div class="categories-grid">
-			{#if categories.length > 0}
-				{#each categories as category}
-					<div class="category-card">
-						<div class="category-header">
-							<div class="category-name">{category.name}</div>
-							<div class="category-amount">{formatCurrency(category.spent)}</div>
-						</div>
-						<div class="category-progress">
-							<div class="progress">
-								<div class="progress-fill" style="width: {category.percentage}%"></div>
-							</div>
-							<div class="category-stats">
-								<span class="used">{category.percentage}% used</span>
-								<span class="budget">Budget: {formatCurrency(category.budget)}</span>
-							</div>
-						</div>
-					</div>
-				{/each}
-			{:else}
-				<div class="empty-state">
-					<div class="empty-icon">📊</div>
-					<p>No categories set</p>
-				</div>
-			{/if}
-		</div>
-	</div>
-
-	<!-- 5. Recent Activity -->
-	<div class="section">
-		<div class="section-header">
-			<h2>Recent Activity</h2>
-			<button class="section-action">View All</button>
-		</div>
-
-		<div class="activity-list">
-			{#if contributions.length > 0}
-				{#each contributions as contribution}
-					<div class="activity-item">
-						<div class="activity-avatar" class:elisa={contribution.contributor === 'Elisa'} class:ruiyan={contribution.contributor === 'Ruiyan'}>
-							{contribution.contributor.charAt(0)}
-						</div>
-						<div class="activity-details">
-							<div class="activity-main">
-								<div class="activity-name">{contribution.contributor}</div>
-								<div class="activity-amount">{formatCurrency(contribution.amount)}</div>
-							</div>
-							<div class="activity-meta">
-								<div class="activity-date">{contribution.date}</div>
-								<div class="activity-time">{contribution.time}</div>
-							</div>
-						</div>
-					</div>
-				{/each}
-			{:else}
-				<div class="empty-state">
-					<div class="empty-icon">📝</div>
-					<p>No recent activity</p>
-				</div>
-			{/if}
 		</div>
 	</div>
 
@@ -238,7 +140,7 @@
 	<div class="section">
 		<div class="section-header">
 			<h2>Monthly Overview</h2>
-			<div class="section-sub">December 2024</div>
+			<div class="value">{monthName}</div>
 		</div>
 
 		<div class="overview-grid">
@@ -331,14 +233,6 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-    }
-
-    .label {
-        color: #7AAEB8;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     .value {
@@ -512,33 +406,6 @@
         margin-top: 16px;
     }
 
-    /* Rate Status */
-    .rate-status {
-        margin-top: 16px;
-    }
-
-    .rate-status span {
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    .good {
-        background: rgba(93, 184, 200, 0.2);
-        color: #2A6976;
-    }
-
-    .ok {
-        background: rgba(155, 207, 216, 0.2);
-        color: #2A6976;
-    }
-
-    .low {
-        background: rgba(168, 216, 224, 0.2);
-        color: #7AAEB8;
-    }
-
     /* Sections */
     .section {
         background: #C2E5ED;
@@ -561,207 +428,6 @@
         font-weight: 700;
         color: #1A4D5E;
         margin: 0;
-    }
-
-    .section-sub {
-        color: #7AAEB8;
-        font-size: 15px;
-        font-weight: 600;
-        margin-top: 4px;
-    }
-
-    .section-action {
-        background: #5DB8C8;
-        color: #E8F5F8;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .section-action:hover {
-        background: #3C8D9C;
-        transform: translateY(-2px);
-    }
-
-    /* Goals Grid */
-    .goals-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-    }
-
-    .goal-card {
-        background: #E8F5F8;
-        border: 2px solid #A8D8E0;
-        border-radius: 16px;
-        padding: 20px;
-    }
-
-    .goal-header {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 20px;
-    }
-
-    .goal-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        background: #5DB8C8;
-        color: #E8F5F8;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-
-    .goal-title h3 {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1A4D5E;
-        margin: 0 0 4px 0;
-    }
-
-    .goal-target {
-        color: #5DB8C8;
-        font-weight: 800;
-        font-size: 20px;
-    }
-
-    .goal-progress .progress {
-        height: 12px;
-        margin-bottom: 12px;
-    }
-
-    .goal-stats {
-        display: flex;
-        justify-content: space-between;
-        color: #2A6976;
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    /* Categories Grid */
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 16px;
-    }
-
-    .category-card {
-        background: #E8F5F8;
-        border: 2px solid #A8D8E0;
-        border-radius: 16px;
-        padding: 20px;
-    }
-
-    .category-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-    }
-
-    .category-name {
-        color: #1A4D5E;
-        font-weight: 700;
-        font-size: 16px;
-    }
-
-    .category-amount {
-        color: #2A6976;
-        font-weight: 800;
-        font-size: 18px;
-    }
-
-    .category-progress .progress {
-        height: 6px;
-        margin-bottom: 12px;
-    }
-
-    .category-stats {
-        display: flex;
-        justify-content: space-between;
-        color: #7AAEB8;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    /* Activity List */
-    .activity-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .activity-item {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px;
-        background: #E8F5F8;
-        border-radius: 16px;
-        border: 2px solid #D9F0F5;
-    }
-
-    .activity-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 20px;
-        flex-shrink: 0;
-    }
-
-    .activity-avatar.elisa {
-        background: #88C9D4;
-        color: #E8F5F8;
-    }
-
-    .activity-avatar.ruiyan {
-        background: #9BCFD8;
-        color: #E8F5F8;
-    }
-
-    .activity-details {
-        flex: 1;
-    }
-
-    .activity-main {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 4px;
-    }
-
-    .activity-name {
-        color: #1A4D5E;
-        font-weight: 700;
-        font-size: 16px;
-    }
-
-    .activity-amount {
-        color: #2A6976;
-        font-weight: 800;
-        font-size: 18px;
-    }
-
-    .activity-meta {
-        display: flex;
-        gap: 12px;
-        color: #7AAEB8;
-        font-size: 13px;
-        font-weight: 600;
     }
 
     /* Overview Grid */
@@ -810,42 +476,6 @@
         font-weight: 600;
     }
 
-    /* Empty States */
-    .empty-state {
-        text-align: center;
-        padding: 48px 24px;
-    }
-
-    .empty-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
-        opacity: 0.5;
-    }
-
-    .empty-state p {
-        color: #7AAEB8;
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 24px;
-    }
-
-    .btn-primary {
-        background: #5DB8C8;
-        color: #E8F5F8;
-        border: none;
-        padding: 12px 32px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .btn-primary:hover {
-        background: #3C8D9C;
-        transform: translateY(-2px);
-    }
-
     /* Responsive */
     @media (max-width: 1200px) {
         .stats-grid {
@@ -882,11 +512,6 @@
         }
 
         .overview-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .goals-grid,
-        .categories-grid {
             grid-template-columns: 1fr;
         }
     }

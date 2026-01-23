@@ -59,13 +59,11 @@
 				step="0.01"
 			/>
 
-			<button class="confirm" id="confirm" on:click={handleSubmit}>
-				<div class="button-content">
+			<button class="confirm button-content" id="confirm" on:click={handleSubmit}>
 					<span class="button-text">Add</span>
 					<svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
-				</div>
 			</button>
 		</div>
 

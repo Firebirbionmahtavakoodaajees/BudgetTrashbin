@@ -7,9 +7,10 @@
 	//Functions
 	function goHome() { goto('/'); }
 	function goContribution() { goto('/contributions/Elisa'); }
-	function goDreams() { goto(''); }
+	function goDreams() { goto('/dreams'); }
 	function goSpendings() { goto(''); }
 	function goSettings() { goto(''); }
+
 
 </script>
 
@@ -23,7 +24,7 @@
 		<button class="home-icon" on:click={goContribution}>
 			<img src="./assets/contributions.png" alt="">
 		</button>
-		<button class="home-icon">
+		<button class="home-icon" on:click={goDreams}>
 			<img src="./assets/dreams.png" alt="">
 		</button>
 		<button class="home-icon">
