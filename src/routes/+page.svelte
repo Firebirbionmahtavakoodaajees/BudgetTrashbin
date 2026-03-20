@@ -10,7 +10,7 @@
 		monthlyOut: $vars.monthlyOut,
 		goalProgress: $vars.goalProgress,
 		dailyNeeded: $vars.dailyNeeded,
-	} : { loading: "Loading..." };
+	} : { loading: 0 };
 
 	$: categories = $vars?.categories ?? [];
 
