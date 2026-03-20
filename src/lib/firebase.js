@@ -1,21 +1,16 @@
-//Imports
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp, getApps } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
-
-//Variables
 const firebaseConfig = {
-	apiKey: "AIzaSyBeGFuH1b1t63JXlzw7sL4hWAzFrK0J_e0",
-	authDomain: "budget-trashbin.firebaseapp.com",
-	projectId: "budget-trashbin",
-	storageBucket: "budget-trashbin.firebasestorage.app",
-	messagingSenderId: "438057291439",
-	appId: "1:438057291439:web:8ed3cddd4182f9d0164e5a"
+	apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+	projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+	authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+	storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+	messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+	appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-//Functions
-const app = initializeApp(firebaseConfig);
+// Only initialize if it hasn't been already
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+
 export const db = getFirestore(app);
