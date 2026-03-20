@@ -1,15 +1,20 @@
 <script>
-	// Data will come from your backend
-	let savingsData = {
-		total: 0,
-		monthlyIn: 0,
-		monthlyOut: 0,
-		goalProgress: 0,
-		dailyNeeded: 0
-	};
+	//Imports
+	import { docStore } from "$lib/firestore";
+	const vars = docStore("variables/global");
+
+
+	$: savingsData = $vars ? {
+		total: $vars.total,
+		monthlyIn: $vars.monthlyIn,
+		monthlyOut: $vars.monthlyOut,
+		goalProgress: $vars.goalProgress,
+		dailyNeeded: $vars.dailyNeeded,
+	} : { loading: "Loading..." };
+
+	$: categories = $vars?.categories ?? [];
 
 	let goals = [];
-	let categories = [];
 	let contributions = [];
 	let monthlySpending = [];
 	let upcomingExpenses = [];
@@ -39,6 +44,19 @@
 		const diff = target - today;
 		return Math.ceil(diff / (1000 * 60 * 60 * 24));
 	}
+
+	function getCategoryProgress(spent, budget) {
+		if (!budget || budget === 0) return 0;
+		return Math.min(Math.round((spent / budget) * 100), 100);
+	}
+
+	function getCategoryStatus(spent, budget) {
+		if (!budget || budget === 0) return 'neutral';
+		const pct = (spent / budget) * 100;
+		if (pct >= 100) return 'over';
+		if (pct >= 80) return 'warning';
+		return 'ok';
+	}
 </script>
 
 <div class="dashboard">
@@ -59,6 +77,8 @@
 
 	<!-- 2. Main Stats Grid -->
 	<div class="stats-grid">
+
+		<!-- Total saved -->
 		<div class="stat-card total">
 			<div class="stat-icon">💎</div>
 			<div class="stat-content">
@@ -73,6 +93,7 @@
 			</div>
 		</div>
 
+		<!-- Monthly flow -->
 		<div class="stat-card flow">
 			<div class="stat-icon">📊</div>
 			<div class="stat-content">
@@ -94,6 +115,7 @@
 			</div>
 		</div>
 
+		<!-- Goals -->
 		<div class="stat-card goal">
 			<div class="stat-icon">🎯</div>
 			<div class="stat-content">
@@ -110,6 +132,7 @@
 			</div>
 		</div>
 
+		<!-- Until -->
 		<div class="stat-card rate">
 			<div class="stat-icon">💭</div>
 			<div class="stat-content">
@@ -125,7 +148,7 @@
 		</div>
 	</div>
 
-	<!-- 4. Spending & Categories -->
+	<!-- 4. Spending Categories -->
 	<div class="section">
 		<div class="section-header">
 			<h2>Spending Categories</h2>
@@ -133,6 +156,40 @@
 		</div>
 
 		<div class="categories-grid">
+			{#if categories.length === 0}
+				<div class="empty-state">No categories found</div>
+			{:else}
+				{#each categories as cat}
+					{@const progress = getCategoryProgress(cat.spent, cat.budget)}
+					{@const status = getCategoryStatus(cat.spent, cat.budget)}
+					<div class="category-card status-{status}">
+						<div class="category-header">
+							<div class="category-icon">{cat.icon ?? '📦'}</div>
+							<div class="category-meta">
+								<div class="category-name">{cat.name}</div>
+								<div class="category-amounts">
+									<span class="spent">{formatCurrency(cat.spent ?? 0)}</span>
+									<span class="divider">/</span>
+									<span class="budget">{formatCurrency(cat.budget ?? 0)}</span>
+								</div>
+							</div>
+							<div class="category-pct status-label-{status}">
+								{progress}%
+							</div>
+						</div>
+						<div class="progress">
+							<div class="progress-fill fill-{status}" style="width: {progress}%"></div>
+						</div>
+						<div class="category-remaining">
+							{#if status === 'over'}
+								<span class="over-budget">Over budget by {formatCurrency((cat.spent ?? 0) - (cat.budget ?? 0))}</span>
+							{:else}
+								<span class="under-budget">{formatCurrency((cat.budget ?? 0) - (cat.spent ?? 0))} remaining</span>
+							{/if}
+						</div>
+					</div>
+				{/each}
+			{/if}
 		</div>
 	</div>
 
@@ -258,21 +315,10 @@
         gap: 20px;
     }
 
-    .stat-card.total {
-        border-color: #88C9D4;
-    }
-
-    .stat-card.flow {
-        border-color: #88C9D4;
-    }
-
-    .stat-card.goal {
-        border-color: #88C9D4;
-    }
-
-    .stat-card.rate {
-        border-color: #88C9D4;
-    }
+    .stat-card.total { border-color: #88C9D4; }
+    .stat-card.flow  { border-color: #88C9D4; }
+    .stat-card.goal  { border-color: #88C9D4; }
+    .stat-card.rate  { border-color: #88C9D4; }
 
     .stat-icon {
         font-size: 28px;
@@ -286,9 +332,7 @@
         flex-shrink: 0;
     }
 
-    .stat-content {
-        flex: 1;
-    }
+    .stat-content { flex: 1; }
 
     .stat-label {
         color: #7AAEB8;
@@ -307,9 +351,7 @@
         line-height: 1;
     }
 
-    .stat-progress {
-        margin-top: 20px;
-    }
+    .stat-progress { margin-top: 20px; }
 
     .progress {
         height: 8px;
@@ -323,6 +365,7 @@
         height: 100%;
         background: #5DB8C8;
         border-radius: 4px;
+        transition: width 0.4s ease;
     }
 
     .progress-text {
@@ -353,29 +396,12 @@
         font-weight: 700;
     }
 
-    .flow-type {
-        color: #2A6976;
-        font-size: 15px;
-        font-weight: 600;
-    }
+    .flow-type { color: #2A6976; font-size: 15px; font-weight: 600; }
 
-    .flow-amount {
-        font-weight: 800;
-        font-size: 18px;
-    }
-
-    .flow-amount.in {
-        color: #2A6976;
-    }
-
-    .flow-amount.out {
-        color: #7AAEB8;
-    }
-
-    .flow-amount.net {
-        color: #1A4D5E;
-        font-size: 20px;
-    }
+    .flow-amount { font-weight: 800; font-size: 18px; }
+    .flow-amount.in  { color: #2A6976; }
+    .flow-amount.out { color: #7AAEB8; }
+    .flow-amount.net { color: #1A4D5E; font-size: 20px; }
 
     /* Goal Specific */
     .next-goal {
@@ -386,25 +412,9 @@
         border: 1px solid rgba(93, 184, 200, 0.2);
     }
 
-    .goal-name {
-        color: #1A4D5E;
-        font-weight: 700;
-        font-size: 16px;
-        margin-bottom: 8px;
-    }
-
-    .goal-amount {
-        color: #5DB8C8;
-        font-weight: 800;
-        font-size: 20px;
-    }
-
-    .no-goals {
-        color: #7AAEB8;
-        font-weight: 600;
-        font-size: 15px;
-        margin-top: 16px;
-    }
+    .goal-name { color: #1A4D5E; font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+    .goal-amount { color: #5DB8C8; font-weight: 800; font-size: 20px; }
+    .no-goals { color: #7AAEB8; font-weight: 600; font-size: 15px; margin-top: 16px; }
 
     /* Sections */
     .section {
@@ -423,12 +433,105 @@
         border-bottom: 2px solid #A8D8E0;
     }
 
-    h2 {
-        font-size: 22px;
+    h2 { font-size: 22px; font-weight: 700; color: #1A4D5E; margin: 0; }
+
+    /* ── Categories Grid ── */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        color: #7AAEB8;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        padding: 32px 0;
+    }
+
+    .empty-state code {
+        background: rgba(93,184,200,0.15);
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 14px;
+    }
+
+    .category-card {
+        background: #E8F5F8;
+        border: 2px solid #A8D8E0;
+        border-radius: 16px;
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: border-color 0.2s;
+    }
+
+    .category-card.status-warning { border-color: #E8C97A; }
+    .category-card.status-over    { border-color: #E89090; }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .category-icon {
+        font-size: 24px;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #C2E5ED;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .category-meta { flex: 1; min-width: 0; }
+
+    .category-name {
+        font-size: 15px;
         font-weight: 700;
         color: #1A4D5E;
-        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+
+    .category-amounts {
+        display: flex;
+        gap: 4px;
+        align-items: baseline;
+        margin-top: 2px;
+    }
+
+    .category-amounts .spent  { font-size: 14px; font-weight: 800; color: #1A4D5E; }
+    .category-amounts .divider { font-size: 13px; color: #7AAEB8; }
+    .category-amounts .budget  { font-size: 13px; font-weight: 600; color: #7AAEB8; }
+
+    .category-pct {
+        font-size: 15px;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .status-label-ok      { color: #2A6976; }
+    .status-label-warning { color: #B08020; }
+    .status-label-over    { color: #B04040; }
+    .status-label-neutral { color: #7AAEB8; }
+
+    /* progress bar colours per status */
+    .fill-ok      { background: #5DB8C8; }
+    .fill-warning { background: #E8C97A; }
+    .fill-over    { background: #E89090; }
+    .fill-neutral { background: #5DB8C8; }
+
+    .category-remaining { font-size: 13px; font-weight: 600; }
+    .under-budget { color: #2A6976; }
+    .over-budget  { color: #B04040; }
 
     /* Overview Grid */
     .overview-grid {
@@ -459,60 +562,23 @@
         flex-shrink: 0;
     }
 
-    .overview-content {
-        flex: 1;
-    }
-
-    .overview-value {
-        font-size: 24px;
-        font-weight: 800;
-        color: #1A4D5E;
-        margin-bottom: 4px;
-    }
-
-    .overview-label {
-        color: #7AAEB8;
-        font-size: 14px;
-        font-weight: 600;
-    }
+    .overview-content { flex: 1; }
+    .overview-value { font-size: 24px; font-weight: 800; color: #1A4D5E; margin-bottom: 4px; }
+    .overview-label { color: #7AAEB8; font-size: 14px; font-weight: 600; }
 
     /* Responsive */
     @media (max-width: 1200px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .overview-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+        .stats-grid    { grid-template-columns: repeat(2, 1fr); }
+        .overview-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 768px) {
-        .dashboard {
-            padding: 16px;
-            gap: 16px;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .header-main {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 20px;
-        }
-
-        .header-info {
-            justify-content: space-between;
-        }
-
-        .info-item {
-            align-items: flex-start;
-        }
-
-        .overview-grid {
-            grid-template-columns: 1fr;
-        }
+        .dashboard { padding: 16px; gap: 16px; }
+        .stats-grid { grid-template-columns: 1fr; }
+        .header-main { flex-direction: column; align-items: stretch; gap: 20px; }
+        .header-info { justify-content: space-between; }
+        .info-item { align-items: flex-start; }
+        .overview-grid { grid-template-columns: 1fr; }
+        .categories-grid { grid-template-columns: 1fr; }
     }
 </style>

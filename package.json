@@ -52,6 +52,7 @@
 		"svelte"
 	],
 	"dependencies": {
+		"firebase": "^12.10.0",
 		"svelte-material-ui": "^8.0.3"
 	}
 }

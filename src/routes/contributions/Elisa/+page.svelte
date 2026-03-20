@@ -1,4 +1,7 @@
 <script>
+	//Imports
+
+
 	let selectedContributor = '';
 	let amount = '';
 
@@ -9,7 +12,11 @@
 
 	function handleSubmit() {
 		if (!amount || !selectedContributor) {
-			alert('Sä oot kyl hauska elä ees yritä');
+			alert('Kokeileppa ny uudellee');
+			return;
+		}
+		if (amount < 0.01) {
+			alert('Ootpa sä hauska');
 			return;
 		}
 
@@ -259,7 +266,7 @@
         font-weight: 600;
         font-size: 15px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
 
     }
 
@@ -519,7 +526,7 @@
         color: #2A6976;
         margin-bottom: 16px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
     }
 
     .radio-options {
