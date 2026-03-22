@@ -3,6 +3,10 @@
 	import { docStore } from "$lib/firestore";
 	const vars = docStore("variables/global");
 
+	//SvelteLive
+	$: savingsData.net = savingsData.monthlyIn - savingsData.monthlyOut;
+	$: savingsData.savingsRate = savingsData.total > 0 ? Math.round((savingsData.net / savingsData.monthlyIn) * 100) : 0;
+
 	$: categories = $vars?.categories ?? [];
 	$: contributions = $vars?.contributions ?? [];
 
@@ -14,9 +18,17 @@
 		})
 		// Reduce by adding all the contributions this month together.
 		.reduce((sum, eachContribution) => sum + parseFloat(eachContribution.amount), 0);
-
+	//If not alr same, set
 	$: if ($vars && $vars.monthlyIn !== monthlyTotal) {
 		vars.set({ monthlyIn: monthlyTotal });
+	}
+
+	$: totalSum = contributions
+		// Reduce by adding all the contribs together.
+		.reduce((sum, eachContribution) => sum + parseFloat(eachContribution.amount), 0);
+	//If not alr same, set
+	$: if ($vars && $vars.total !== totalSum) {
+		vars.set({ total: totalSum });
 	}
 
 	$: savingsData = $vars ? {
@@ -36,16 +48,11 @@
 	let monthlySpending = [];
 	let upcomingExpenses = [];
 
-	const now = new Date();
-	const monthIndex = now.getMonth() + 1;
-	const monthName = now.toLocaleString('default', { month: 'long' });
+	const monthName = new Date().toLocaleString('default', { month: 'long' });
 
 	const nextGoal = 1;
 
 	// Functions for calculations
-	$: savingsData.net = savingsData.monthlyIn - savingsData.monthlyOut;
-	$: savingsData.savingsRate = savingsData.total > 0 ? Math.round((savingsData.net / savingsData.monthlyIn) * 100) : 0;
-
 	function formatCurrency(value) {
 		return new Intl.NumberFormat('fi-FI', {
 			style: 'currency',
@@ -82,7 +89,7 @@
 		<div class="header-main">
 			<div class="header-title">
 				<div class="logo">💰</div>
-				<h1>Savings Tracker</h1>
+				<h1>Budget Trashbin</h1>
 			</div>
 			<div class="header-info">
 				<div class="info-item">
