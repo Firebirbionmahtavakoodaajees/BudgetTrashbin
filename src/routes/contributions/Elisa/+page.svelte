@@ -1,16 +1,16 @@
 <script>
 	//Imports
-
+	import { docStore } from "$lib/firestore";
+	const vars = docStore("variables/global");
 
 	let selectedContributor = '';
 	let amount = '';
 
-	// Store contributions history
-	let contributions = [
-		// This will be populated by your actual data later
-	];
+	$: contributions = $vars?.contributions ?? [];
 
 	function handleSubmit() {
+
+		//Check invalid entries
 		if (!amount || !selectedContributor) {
 			alert('Kokeileppa ny uudellee');
 			return;
@@ -20,17 +20,18 @@
 			return;
 		}
 
-		// Add new contribution to the list
-		contributions = [
+		//Data for contributions
+		const newEntry = [
 			{
-				id: Date.now(), // Unique ID
+				id: Date.now(),
 				amount: parseFloat(amount).toFixed(2),
 				contributor: selectedContributor,
 				date: new Date().toLocaleDateString('fi-FI'),
 				time: new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })
 			},
-			...contributions // Put newest first
+			...contributions
 		];
+		$vars = {...$vars, contributions: newEntry}
 
 		// Clear form
 		amount = '';
@@ -68,7 +69,7 @@
 
 			<button class="confirm button-content" id="confirm" on:click={handleSubmit}>
 					<span class="button-text">Add</span>
-					<svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<svg class="button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 						<path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 			</button>
@@ -121,7 +122,7 @@
 
 		{#if contributions.length === 0}
 			<div class="empty-state">
-				<svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+				<svg class="empty-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
 					<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
 				</svg>
 				<p class="empty-text">No contributions yet</p>
@@ -133,7 +134,7 @@
 				<div class="table-header">
 					<div class="header-cell amount-header">
 						<span>Amount</span>
-						<svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<svg class="sort-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 							<path d="M8 9l4-4 4 4M16 15l-4 4-4-4"/>
 						</svg>
 					</div>
