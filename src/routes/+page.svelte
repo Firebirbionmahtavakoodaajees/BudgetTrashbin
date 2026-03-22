@@ -3,6 +3,21 @@
 	import { docStore } from "$lib/firestore";
 	const vars = docStore("variables/global");
 
+	$: categories = $vars?.categories ?? [];
+	$: contributions = $vars?.contributions ?? [];
+
+	$: monthlyTotal = contributions
+		// Filter out only values from this month
+		.filter(eachContribution => {
+			const [, month, year] = eachContribution.date.split('.');
+			return parseInt(month) === new Date().getMonth() + 1 && parseInt(year) === new Date().getFullYear();
+		})
+		// Reduce by adding all the contributions this month together.
+		.reduce((sum, eachContribution) => sum + parseFloat(eachContribution.amount), 0);
+
+	$: if ($vars && $vars.monthlyIn !== monthlyTotal) {
+		vars.set({ monthlyIn: monthlyTotal });
+	}
 
 	$: savingsData = $vars ? {
 		total: $vars.total,
@@ -17,10 +32,7 @@
 		goalProgress: 0,
 		dailyNeeded: 0, };
 
-	$: categories = $vars?.categories ?? [];
-
 	let goals = [];
-	let contributions = [];
 	let monthlySpending = [];
 	let upcomingExpenses = [];
 
@@ -456,13 +468,6 @@
         padding: 32px 0;
     }
 
-    .empty-state code {
-        background: rgba(93,184,200,0.15);
-        border-radius: 4px;
-        padding: 2px 6px;
-        font-size: 14px;
-    }
-
     .category-card {
         background: #E8F5F8;
         border: 2px solid #A8D8E0;
@@ -474,8 +479,13 @@
         transition: border-color 0.2s;
     }
 
+		/*
+		Colors
+
     .category-card.status-warning { border-color: #E8C97A; }
     .category-card.status-over    { border-color: #E89090; }
+
+		 */
 
     .category-header {
         display: flex;
@@ -523,16 +533,20 @@
         flex-shrink: 0;
     }
 
+		/*
+		Colors
+
     .status-label-ok      { color: #2A6976; }
     .status-label-warning { color: #B08020; }
     .status-label-over    { color: #B04040; }
     .status-label-neutral { color: #7AAEB8; }
 
-    /* progress bar colours per status */
     .fill-ok      { background: #5DB8C8; }
     .fill-warning { background: #E8C97A; }
     .fill-over    { background: #E89090; }
     .fill-neutral { background: #5DB8C8; }
+
+		 */
 
     .category-remaining { font-size: 13px; font-weight: 600; }
     .under-budget { color: #2A6976; }

@@ -2,9 +2,6 @@
 	import './layout.css';
 	import { goto } from '$app/navigation';
 
-	import fs from 'fs/promises';
-	import path from 'path';
-
 	//Variables
 
 	//Functions
@@ -13,18 +10,6 @@
 	function goDreams() { goto('/dreams'); }
 	function goSpendings() { goto(''); }
 	function goSettings() { goto(''); }
-
-	export async function load() {
-		const filePath = path.resolve('src/lib/server/config.json');
-		const file = await fs.readFile(filePath, 'utf-8');
-		const config = JSON.parse(file);
-
-		return {
-			cat: config.cat
-		};
-	}
-
-
 </script>
 
 <link rel="icon" href="static/favicon.png">
@@ -57,8 +42,9 @@
     .shell {
         display: flex;
         height: 100vh;
+
         ::-webkit-scrollbar {
-            display: none;
+						display: none;
         }
     }
     .sidebar {
@@ -89,10 +75,6 @@
 				display: flex;
         flex-direction: row;
         overflow-y: auto;
-
-        ::-webkit-scrollbar {
-            display: none;
-        }
     }
 
     :global(html) {
