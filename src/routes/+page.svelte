@@ -88,7 +88,7 @@
 	<div class="header-section">
 		<div class="header-main">
 			<div class="header-title">
-				<div class="logo">💰</div>
+				<div class="logo">🦝</div>
 				<h1>Budget Trashbin</h1>
 			</div>
 			<div class="header-info">
