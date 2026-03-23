@@ -31,6 +31,8 @@
 		vars.set({ total: totalSum });
 	}
 
+
+
 	$: savingsData = $vars ? {
 		total: $vars.total,
 		monthlyIn: $vars.monthlyIn,
@@ -42,7 +44,8 @@
 		monthlyIn: 0,
 		monthlyOut: 0,
 		goalProgress: 0,
-		dailyNeeded: 0, };
+		dailyNeeded: 0,
+	};
 
 	let goals = [];
 	let monthlySpending = [];
@@ -50,7 +53,7 @@
 
 	const monthName = new Date().toLocaleString('default', { month: 'long' });
 
-	const nextGoal = 1;
+	const nextGoal = "Not implemented";
 
 	// Functions for calculations
 	function formatCurrency(value) {
@@ -161,7 +164,7 @@
 			<div class="stat-icon">💭</div>
 			<div class="stat-content">
 				<div class="stat-label">Until {nextGoal}</div>
-				<div class="stat-value">{formatCurrency(savingsData.total)}</div>
+				<div class="stat-value">{formatCurrency(savingsData.total)}</div> // TODO: Add minus goal cost!
 				<div class="stat-progress">
 					<div class="progress">
 						<div class="progress-fill" style="width: {savingsData.goalProgress}%"></div>
