@@ -223,8 +223,7 @@
 	<!-- 6. Monthly Overview -->
 	<div class="section">
 		<div class="section-header">
-			<h2>Monthly Overview</h2>
-			<div class="value">{monthName}</div>
+			<h2>Overview</h2>
 		</div>
 
 		<div class="overview-grid">
