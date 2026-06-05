@@ -1,15 +1,19 @@
 <script>
 	import './layout.css';
 	import { goto } from '$app/navigation';
+	import { navigating } from '$app/stores';
 
 	//Variables
 
 	//Functions
 	function goHome() { goto('/'); }
-	function goContribution() { goto('/contributions/Elisa'); }
+	function goContribution() { goto('/contributions'); }
 	function goDreams() { goto('/dreams'); }
 	function goSpendings() { goto('/spendings'); }
 	function goSettings() { goto(''); }
+
+	// Helper function to check if a specific path is currently loading
+	$: isLoading = (path) => $navigating && $navigating.to?.url.pathname === path;
 </script>
 
 <link rel="icon" href="static/favicon.png">
@@ -17,17 +21,38 @@
 <div class="shell">
 	<div class="sidebar">
 		<button class="home-icon" on:click={goHome}>
-			<img src="./assets/home.png" alt="">
+			{#if isLoading('/')}
+				<div class="loading-wheel">Loading...</div>
+			{:else}
+				<img src="./assets/home.png" alt="">
+			{/if}
 		</button>
+
 		<button class="home-icon" on:click={goContribution}>
-			<img src="./assets/contributions.png" alt="">
+			{#if isLoading('/contributions')}
+				<div class="loading-wheel">Loading...</div>
+			{:else}
+				<img src="./assets/contributions.png" alt="">
+			{/if}
 		</button>
+
 		<button class="home-icon" on:click={goDreams}>
-			<img src="./assets/dreams.png" alt="">
+			{#if isLoading('/dreams')}
+				<div class="loading-wheel">Loading...</div>
+			{:else}
+				<img src="./assets/dreams.png" alt="">
+			{/if}
 		</button>
+
 		<button class="home-icon" on:click={goSpendings}>
-			<img src="./assets/spendings.png" alt="">
+			{#if isLoading('/spendings')}
+				<div class="loading-wheel">Loading...</div>
+			{:else}
+				<img src="./assets/spendings.png" alt="">
+			{/if}
+
 		</button>
+
 		<button class="home-icon">
 			<img src="./assets/setting.png" alt="">
 		</button>
